@@ -1,0 +1,273 @@
+rules:
+  # ==========================================================
+  # Python
+  # ==========================================================
+
+  - id: sycur-python-shell-injection
+    message: User-controlled command reaches shell execution.
+    severity: ERROR
+    languages:
+      - python
+    metadata:
+      title: Shell Command Injection
+      cwe:
+        - "CWE-78"
+    patterns:
+      - pattern: subprocess.run($CMD, shell=True, ...)
+
+
+  # ==========================================================
+  # React / TypeScript
+  # ==========================================================
+
+  - id: sycur-react-hardcoded-credential
+    message: Hardcoded credential detected in React/TypeScript source.
+    severity: ERROR
+    languages:
+      - typescript
+    metadata:
+      title: Hardcoded Credential
+      cwe:
+        - "CWE-798"
+    pattern-regex: '(?i)\b(?:const|let|var)\s+\w*(?:password|passwd|pwd|secret|token|apiKey)\w*\s*=\s*["''][^"'']+["'']'
+
+
+  - id: sycur-react-sensitive-localstorage
+    message: Sensitive authentication data is stored in browser localStorage.
+    severity: WARNING
+    languages:
+      - typescript
+    metadata:
+      title: Sensitive Data Stored in LocalStorage
+      cwe:
+        - "CWE-922"
+    patterns:
+      - pattern: localStorage.setItem("auth_token", $VALUE)
+
+
+  - id: sycur-react-eval-injection
+    message: Dynamic input reaches eval(), which can execute arbitrary JavaScript.
+    severity: ERROR
+    languages:
+      - typescript
+    metadata:
+      title: Eval Injection
+      cwe:
+        - "CWE-95"
+    patterns:
+      - pattern: eval($EXPRESSION)
+
+
+  - id: sycur-react-open-redirect
+    message: Unvalidated input controls a browser redirect destination.
+    severity: WARNING
+    languages:
+      - typescript
+    metadata:
+      title: Unvalidated Redirect
+      cwe:
+        - "CWE-601"
+    patterns:
+      - pattern: window.location.href = $URL
+
+
+  - id: sycur-react-dangerous-html
+    message: User-controlled HTML is rendered using dangerouslySetInnerHTML.
+    severity: ERROR
+    languages:
+      - typescript
+    metadata:
+      title: Cross-Site Scripting via dangerouslySetInnerHTML
+      cwe:
+        - "CWE-79"
+    pattern-regex: 'dangerouslySetInnerHTML\s*=\s*\{\{\s*__html\s*:'
+
+
+  # ==========================================================
+  # Flutter / Dart
+  # ==========================================================
+
+  - id: sycur-flutter-sensitive-shared-preferences
+    message: Sensitive authentication data is stored in SharedPreferences.
+    severity: ERROR
+    languages:
+      - dart
+    metadata:
+      title: Sensitive Data Stored Insecurely
+      cwe:
+        - "CWE-922"
+    pattern-regex: "setString\\s*\\(\\s*['\\\"]auth_token['\\\"]\\s*,"
+
+
+  - id: sycur-flutter-insecure-http
+    message: Sensitive communication uses unencrypted HTTP.
+    severity: ERROR
+    languages:
+      - dart
+    metadata:
+      title: Cleartext Transmission of Sensitive Information
+      cwe:
+        - "CWE-319"
+    pattern-regex: "Uri\\.parse\\s*\\(\\s*['\\\"]http://"
+
+
+  - id: sycur-flutter-hardcoded-secret
+    message: Hardcoded secret or API key detected in Dart source.
+    severity: ERROR
+    languages:
+      - dart
+    metadata:
+      title: Hardcoded Secret
+      cwe:
+        - "CWE-798"
+    pattern-regex: "(?i)\\b(?:const|final|var)\\s+\\w*(?:api[_-]?key|token|secret|password)\\w*\\s*=\\s*['\\\"][^'\\\"]+['\\\"]"
+
+
+  - id: sycur-flutter-sensitive-logging
+    message: Sensitive authentication data may be exposed through application logs.
+    severity: WARNING
+    languages:
+      - dart
+    metadata:
+      title: Sensitive Information in Logs
+      cwe:
+        - "CWE-532"
+    pattern-regex: "(?i)print\\s*\\([^\\n]*(?:token|password|secret|api[_-]?key)[^\\n]*\\)"
+
+
+  # ==========================================================
+  # Java
+  # ==========================================================
+
+  - id: sycur-java-hardcoded-credential
+    message: Hardcoded credential detected in Java source.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: Hardcoded Credential
+      cwe:
+        - "CWE-798"
+    pattern-regex: '(?i)\b(?:private|public|protected)?\s*(?:static\s+)?(?:final\s+)?String\s+\w*(?:password|passwd|pwd|secret|token|api[\_-]?key)\w*\s*=\s*"[^"]+"'
+
+
+  - id: sycur-java-sql-injection
+    message: User-controlled input is concatenated into an SQL query.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: SQL Injection
+      cwe:
+        - "CWE-89"
+    patterns:
+      - pattern: |
+          String $QUERY = $A + $INPUT + $B;
+
+
+  - id: sycur-java-path-traversal
+    message: User-controlled path data is used to construct a file path.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: Path Traversal
+      cwe:
+        - "CWE-22"
+    patterns:
+      - pattern: new File($BASE + $FILE)
+
+
+  - id: sycur-java-command-injection
+    message: User-controlled command reaches operating system command execution.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: OS Command Injection
+      cwe:
+        - "CWE-78"
+    patterns:
+      - pattern: Runtime.getRuntime().exec($CMD)
+
+
+  - id: sycur-java-weak-des
+    message: DES is a weak cryptographic algorithm and should not be used.
+    severity: WARNING
+    languages:
+      - java
+    metadata:
+      title: Weak Cryptography
+      cwe:
+        - "CWE-327"
+    patterns:
+      - pattern: Cipher.getInstance("DES")
+
+
+  # ==========================================================
+  # Spring Boot
+  # ==========================================================
+
+  - id: sycur-spring-admin-endpoint-no-auth
+    message: Sensitive admin endpoint has no explicit authorization control.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: Missing Authorization on Admin Endpoint
+      cwe:
+        - "CWE-862"
+    patterns:
+      - pattern: |
+          @GetMapping("/admin/users")
+          public $RET $METHOD(...) {
+            ...
+          }
+      - pattern-not-inside: |
+          @PreAuthorize(...)
+          @GetMapping("/admin/users")
+          public $RET $METHOD(...) {
+            ...
+          }
+
+
+  - id: sycur-spring-sensitive-logging
+    message: Sensitive credential data is written to application logs.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: Sensitive Information in Logs
+      cwe:
+        - "CWE-532"
+    patterns:
+      - pattern: System.out.println($DATA);
+      - metavariable-regex:
+          metavariable: $DATA
+          regex: "(?i).*password.*"
+
+
+  - id: sycur-spring-open-redirect
+    message: User-controlled input is used as a redirect destination.
+    severity: ERROR
+    languages:
+      - java
+    metadata:
+      title: Unvalidated Redirect
+      cwe:
+        - "CWE-601"
+    patterns:
+      - pattern: $RESPONSE.sendRedirect($URL)
+
+
+  - id: sycur-spring-wildcard-cors
+    message: Spring endpoint allows requests from any origin.
+    severity: WARNING
+    languages:
+      - java
+    metadata:
+      title: Permissive CORS Configuration
+      cwe:
+        - "CWE-942"
+    patterns:
+      - pattern: '@CrossOrigin(origins = "*")'

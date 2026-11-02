@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sycur-rag"
+version = "0.1.0"
+description = "Local policy RAG proof of concept for SYCUR"
+requires-python = ">=3.11"
+dependencies = [
+    "python-docx>=1.1,<2",
+    "requests>=2.32,<3",
+    "urllib3>=2,<3",
+    "psycopg[binary]>=3.2,<4",
+    "python-dotenv>=1.0,<2",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.5,<3",
+    "beautifulsoup4>=4.12,<5",
+    "pypdf>=5,<7",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
+    "PyJWT[crypto]>=2.10,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+]
+
+[project.scripts]
+sycur-api = "sycur_rag.api.cli:main"
+sycur_cloud_api = "sycur_rag.api.tunnel_cli:main"
+tailscale_start = "sycur_rag.api.tunnel_cli:tailscale_main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"sycur_rag.scanners" = ["rules/*.yml"]
