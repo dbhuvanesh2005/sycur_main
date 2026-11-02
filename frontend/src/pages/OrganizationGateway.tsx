@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { useAuth } from '../auth/useAuth'
+import { supabase } from '../lib/supabase'
 import './OrganizationGateway.css'
 
 type Choice = 'create' | 'existing'
@@ -36,6 +39,80 @@ function ArrowIcon() {
 
 export default function OrganizationGateway() {
   const [selected, setSelected] = useState<Choice | null>(null)
+  const [organizationName, setOrganizationName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const { session } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (session !== null) {
+      navigate('/workspace', { replace: true })
+    }
+  }, [navigate, session])
+
+  const chooseFlow = (choice: Choice) => {
+    setSelected(choice)
+    setError(null)
+    setMessage(null)
+  }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSubmitting(true)
+    setError(null)
+    setMessage(null)
+
+    try {
+      if (selected === 'create') {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/workspace`,
+            data: {
+              organization_name: organizationName.trim(),
+              requested_role: 'organization_admin',
+            },
+          },
+        })
+
+        if (signUpError) {
+          throw signUpError
+        }
+
+        if (data.session !== null) {
+          navigate('/workspace', { replace: true })
+        } else {
+          setMessage(
+            'Registration received. Confirm your email, then sign in.',
+          )
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (signInError) {
+          throw signInError
+        }
+
+        navigate('/workspace', { replace: true })
+      }
+    } catch (authenticationError: unknown) {
+      setError(
+        authenticationError instanceof Error
+          ? authenticationError.message
+          : 'Authentication failed. Please try again.',
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <main className="org-gateway">
@@ -97,7 +174,7 @@ export default function OrganizationGateway() {
 
             <button
               className="gateway-action primary-action"
-              onClick={() => setSelected('create')}
+              onClick={() => chooseFlow('create')}
               aria-pressed={selected === 'create'}
             >
               Create organization <ArrowIcon />
@@ -129,7 +206,7 @@ export default function OrganizationGateway() {
 
             <button
               className="gateway-action secondary-action"
-              onClick={() => setSelected('existing')}
+              onClick={() => chooseFlow('existing')}
               aria-pressed={selected === 'existing'}
             >
               Access organization <ArrowIcon />
@@ -138,21 +215,81 @@ export default function OrganizationGateway() {
         </div>
 
         {selected && (
-          <div className="gateway-selection" role="status" aria-live="polite">
-            <span className="gateway-dot" />
-            <div>
-              <strong>
-                {selected === 'create'
-                  ? 'New organization selected'
-                  : 'Existing organization selected'}
-              </strong>
-              <p>
-                {selected === 'create'
-                  ? 'Next step: Create your account and configure your organization.'
-                  : 'Next step: Sign in to access your authorized organization.'}
-              </p>
+          <form className="gateway-auth-form" onSubmit={handleSubmit}>
+            <div className="gateway-form-heading">
+              <span className="gateway-dot" />
+              <div>
+                <strong>
+                  {selected === 'create'
+                    ? 'Register the organization administrator'
+                    : 'Sign in to your organization'}
+                </strong>
+                <p>
+                  {selected === 'create'
+                    ? 'Create the first administrator account for your workspace.'
+                    : 'Use your existing SYCUR account credentials.'}
+                </p>
+              </div>
             </div>
-          </div>
+
+            {selected === 'create' && (
+              <label>
+                Organization name
+                <input
+                  type="text"
+                  autoComplete="organization"
+                  value={organizationName}
+                  onChange={(event) => setOrganizationName(event.target.value)}
+                  minLength={2}
+                  maxLength={120}
+                  required
+                />
+              </label>
+            )}
+
+            <label>
+              Work email
+              <input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                type="password"
+                autoComplete={selected === 'create'
+                  ? 'new-password'
+                  : 'current-password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                minLength={8}
+                required
+              />
+            </label>
+
+            {error && <p className="gateway-form-error" role="alert">{error}</p>}
+            {message && (
+              <p className="gateway-form-message" role="status">{message}</p>
+            )}
+
+            <button
+              className="gateway-action primary-action"
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting
+                ? 'Please wait…'
+                : selected === 'create'
+                  ? 'Create administrator account'
+                  : 'Sign in'}
+              <ArrowIcon />
+            </button>
+          </form>
         )}
 
         <p className="gateway-help">

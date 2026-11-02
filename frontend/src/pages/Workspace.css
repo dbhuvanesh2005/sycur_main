@@ -1,0 +1,115 @@
+.workspace-page,
+.auth-loading {
+  min-height: 100vh;
+  color: #f4f5ff;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(105, 76, 202, 0.18), transparent 35%),
+    #080d1b;
+}
+
+.auth-loading {
+  display: grid;
+  place-items: center;
+  color: #aab5cd;
+}
+
+.workspace-header {
+  width: min(1000px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 64px 0 30px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.workspace-kicker {
+  color: #39d9bd;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.workspace-header h1 {
+  margin: 10px 0 0;
+  font-size: clamp(32px, 5vw, 52px);
+}
+
+.workspace-header button {
+  padding: 12px 18px;
+  color: #eef1ff;
+  border: 1px solid rgba(160, 174, 210, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.workspace-panel {
+  width: min(1000px, calc(100% - 48px));
+  margin: 20px auto;
+  padding: 32px;
+  border: 1px solid rgba(160, 174, 210, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #131d34, #0e1629);
+}
+
+.workspace-panel h2 {
+  margin-top: 0;
+}
+
+.workspace-panel > p,
+.workspace-status span,
+.workspace-panel dt {
+  color: #9ba8c2;
+}
+
+.workspace-status {
+  margin: 22px 0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 10px;
+}
+
+.workspace-status.success {
+  border: 1px solid rgba(57, 217, 189, 0.25);
+  background: rgba(57, 217, 189, 0.07);
+}
+
+.workspace-status.error {
+  border: 1px solid rgba(255, 100, 125, 0.25);
+  background: rgba(255, 100, 125, 0.07);
+}
+
+.workspace-panel dl {
+  display: grid;
+  gap: 12px;
+}
+
+.workspace-panel dl > div {
+  padding: 15px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.workspace-panel dt {
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.workspace-panel dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 650px) {
+  .workspace-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .workspace-panel {
+    padding: 22px;
+  }
+}

@@ -290,6 +290,82 @@
   line-height: 1.6;
 }
 
+.gateway-auth-form {
+  max-width: 600px;
+  margin: 28px auto 0;
+  padding: 25px;
+  display: grid;
+  gap: 17px;
+  text-align: left;
+  border: 1px solid rgba(57, 217, 189, 0.2);
+  border-radius: 12px;
+  background: rgba(12, 20, 37, 0.95);
+}
+
+.gateway-form-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.gateway-form-heading strong {
+  color: #eef1ff;
+  font-size: 14px;
+}
+
+.gateway-form-heading p {
+  margin: 5px 0 0;
+  color: #98a9b7;
+  font-size: 11px;
+}
+
+.gateway-auth-form label {
+  display: grid;
+  gap: 7px;
+  color: #b9c3d8;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.gateway-auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  color: #f4f5ff;
+  border: 1px solid rgba(160, 174, 210, 0.23);
+  border-radius: 8px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.gateway-auth-form input:focus {
+  border-color: #8b70ef;
+  box-shadow: 0 0 0 3px rgba(139, 112, 239, 0.13);
+}
+
+.gateway-auth-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.gateway-form-error,
+.gateway-form-message {
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+
+.gateway-form-error {
+  color: #ffc3cd;
+  background: rgba(255, 100, 125, 0.1);
+}
+
+.gateway-form-message {
+  color: #bff8ec;
+  background: rgba(57, 217, 189, 0.08);
+}
+
 .gateway-help {
   margin-top: 32px;
   color: #7786a1;
