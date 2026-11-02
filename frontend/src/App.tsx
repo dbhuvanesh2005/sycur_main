@@ -1,5 +1,7 @@
 import { useRoutes } from 'react-router-dom'
 import OrganizationGateway from './pages/OrganizationGateway'
+import Workspace from './pages/Workspace'
+import ProtectedRoute from './auth/ProtectedRoute'
 import './App.css'
 
 type IconName = 'shield' | 'brain' | 'layers' | 'activity' | 'arrow' | 'check'
@@ -363,6 +365,12 @@ function App() {
   const routes = useRoutes([
     { path: '/', element: <LandingPage /> },
     { path: '/organization', element: <OrganizationGateway /> },
+    {
+      element: <ProtectedRoute />,
+      children: [
+        { path: '/workspace', element: <Workspace /> },
+      ],
+    },
   ])
 
   return routes ?? <LandingPage />

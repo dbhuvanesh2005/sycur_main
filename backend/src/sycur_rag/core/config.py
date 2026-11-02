@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     ] = "INFO"
 
     # ---------------------------------------------------------
+    # Browser authentication and CORS
+    # ---------------------------------------------------------
+    SUPABASE_URL: str | None = None
+    SUPABASE_JWT_AUDIENCE: str = "authenticated"
+    CORS_ALLOWED_ORIGIN: str = "http://localhost:5173"
+
+    # ---------------------------------------------------------
     # Database
     # ---------------------------------------------------------
     DB_NAME: str = Field(default="sycur_rag_poc", min_length=1)
@@ -240,6 +247,73 @@ class Settings(BaseSettings):
 
         return cleaned
 
+    @field_validator("SUPABASE_URL")
+    @classmethod
+    def validate_supabase_url(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is None:
+            return None
+
+        cleaned = value.strip().rstrip("/")
+        parsed = urlsplit(cleaned)
+
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("Invalid Supabase URL.")
+
+        if (
+            parsed.scheme != "https"
+            and parsed.hostname not in {
+                "localhost",
+                "127.0.0.1",
+                "::1",
+            }
+        ):
+            raise ValueError(
+                "Remote Supabase URLs must use HTTPS."
+            )
+
+        return cleaned
+
+    @field_validator("CORS_ALLOWED_ORIGIN")
+    @classmethod
+    def validate_cors_allowed_origin(
+        cls,
+        value: str,
+    ) -> str:
+        cleaned = value.strip().rstrip("/")
+        parsed = urlsplit(cleaned)
+
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("Invalid CORS origin.")
+
+        if (
+            parsed.scheme != "https"
+            and parsed.hostname not in {
+                "localhost",
+                "127.0.0.1",
+                "::1",
+            }
+        ):
+            raise ValueError(
+                "Remote frontend origins must use HTTPS."
+            )
+
+        return cleaned
+
     # ---------------------------------------------------------
     # Derived values
     # ---------------------------------------------------------
@@ -254,6 +328,17 @@ class Settings(BaseSettings):
     @property
     def documents_dir(self) -> Path:
         return PROJECT_ROOT / "documents"
+
+    @property
+    def supabase_issuer(self) -> str:
+        if self.SUPABASE_URL is None:
+            raise ValueError("Supabase authentication is not configured.")
+
+        return f"{self.SUPABASE_URL}/auth/v1"
+
+    @property
+    def supabase_jwks_url(self) -> str:
+        return f"{self.supabase_issuer}/.well-known/jwks.json"
 
     @property
     def db_password_value(self) -> str:

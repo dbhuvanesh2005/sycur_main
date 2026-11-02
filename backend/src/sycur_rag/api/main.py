@@ -7,7 +7,9 @@ from pathlib import Path
 from threading import Event, Thread
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from sycur_rag.api.auth import router as auth_router
 from sycur_rag.api.webhook.github import (
     router as github_webhook_router,
 )
@@ -17,6 +19,7 @@ from sycur_rag.api.report import (
 from sycur_rag.github.review_worker_service import (
     run_review_worker,
 )
+from sycur_rag.core.config import get_settings
 
 
 logger = logging.getLogger(__name__)
@@ -94,6 +97,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+settings = get_settings()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.CORS_ALLOWED_ORIGIN],
+    allow_credentials=False,
+    allow_methods=[
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS",
+    ],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+    ],
+)
+
+app.include_router(auth_router)
 app.include_router(github_webhook_router)
 app.include_router(report_router)
 
